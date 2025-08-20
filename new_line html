@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>IRIAM改行ツール</title>
+  <style>
+    body {
+      font-family: "Segoe UI", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+      background: #f5f7fa;
+      padding: 30px;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px 30px;
+      max-width: 800px;
+      margin: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      font-size: 1.4em;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #00bfff; /* 水色に変更 */
+    }
+
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      font-weight: bold;
+      color: #444;
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      font-size: 14px;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      resize: vertical;
+    }
+
+    textarea#story {
+      width: 100%;
+      height: 300px;
+      font-size: 14px;
+      margin-top: 8px;
+      white-space: pre; /* 改行・空白保持 */
+    }
+
+    .checkbox {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 5px;
+      padding: 8px 14px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #fff;
+      background: #007bff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn:hover {
+      background: #0056b3;
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>IRIAM改行ツール</h1>
+
+  <label for="nameInput">名前:</label>
+  <input type="text" id="nameInput" value="リスナー名">
+
+  <label for="strInput">文章:</label>
+  <textarea id="strInput" rows="6">ここに
+改行したい
+文をいれる</textarea>
+
+  <div class="checkbox">
+    <label><input type="checkbox" id="haveStar" checked> 星あり？</label>
+  </div>
+
+  <div class="result-header">
+    <label for="story">結果:</label>
+    <button id="copyBtn" class="btn" onclick="copyToClipboard()">コピー</button>
+  </div>
+  <textarea id="story" readonly></textarea>
+</div>
+
+<script>
+  // pad関数（全角スペース埋め）
+  function pad(text, targetLength = 26) {
+    const currentLength = [...text].length; // Unicode対応の文字数カウント
+    const fullWidthSpace = "　"; // U+3000
+    const spacesNeeded = targetLength - currentLength;
+    return spacesNeeded > 0 ? fullWidthSpace.repeat(spacesNeeded) : "";
+  }
+
+  function generate() {
+    const haveStar = document.getElementById("haveStar").checked;
+    const name = document.getElementById("nameInput").value;
+    const str = document.getElementById("strInput").value;
+
+    let r = "";
+
+    if (haveStar) {
+      r += "、" + pad(name, 23) + "\n"; // 名前行 星あり
+    } else {
+      r += "、" + pad(name) + "\n"; // 名前行 星なし
+    }
+
+    str.split("\n").forEach(value => {
+      r += value + pad(value) + "\n";
+    });
+
+    document.getElementById("story").value = r;
+  }
+
+  function copyToClipboard() {
+    const story = document.getElementById("story");
+    const copyBtn = document.getElementById("copyBtn");
+
+    story.select();
+    story.setSelectionRange(0, 99999); // モバイル対応
+
+    navigator.clipboard.writeText(story.value).then(() => {
+      // ボタンを「コピー済み」に変更
+      copyBtn.textContent = "✔ コピー済み";
+      copyBtn.style.background = "#28a745"; // 緑色に変更
+
+      setTimeout(() => {
+        copyBtn.textContent = "コピー";
+        copyBtn.style.background = "#007bff"; // 元の色に戻す
+      }, 1500);
+    });
+  }
+
+  // イベントリスナーを登録（入力が変わるたびに更新）
+  document.getElementById("nameInput").addEventListener("input", generate);
+  document.getElementById("strInput").addEventListener("input", generate);
+  document.getElementById("haveStar").addEventListener("change", generate);
+
+  // 初期表示
+  generate();
+</script>
+
+</body>
+</html>
