@@ -140,6 +140,10 @@
     );
   }
 
+  function toFullMiddleDot(str) {
+    return str.replace(/･/g, '・');
+  }
+
   // pad関数（行ごとのスペース埋め処理）
   function pad(text, targetLength = 26) {
     const currentLength = [...text].length; // Unicode対応
@@ -180,6 +184,7 @@
     const lines = str.split("\n");
     lines.forEach((value) => {
       let processed = toFullWidth(value); // 半角→全角
+      processed = toFullMiddleDot(processed);
       processed = processed + pad(processed); // 26 or 52文字調整
       r += processed + "\n";
     });
