@@ -133,10 +133,21 @@
 </div>
 
 <script>
-  // pad関数（全角スペース埋め）
+  // 半角→全角変換関数
+  function toFullWidth(str) {
+    return str.replace(/[!-~]/g, ch =>
+      String.fromCharCode(ch.charCodeAt(0) + 0xFEE0)
+    );
+  }
+
+  // pad関数（行ごとのスペース埋め処理）
   function pad(text, targetLength = 26) {
-    const currentLength = [...text].length; // Unicode対応の文字数カウント
-    const fullWidthSpace = "　"; // U+3000
+    const currentLength = [...text].length; // Unicode対応
+    const fullWidthSpace = "　";
+    // let targetLength = 26;
+    if (currentLength > 26) {
+      targetLength = 52;
+    }
     const spacesNeeded = targetLength - currentLength;
     return spacesNeeded > 0 ? fullWidthSpace.repeat(spacesNeeded) : "";
   }
@@ -148,15 +159,23 @@
 
     let r = "";
 
+    // 名前行（全角変換はしない）
     if (haveStar) {
       r += "、" + pad(name, 23) + "\n"; // 名前行 星あり
     } else {
       r += "、" + pad(name) + "\n"; // 名前行 星なし
     }
 
-    str.split("\n").forEach(value => {
-      r += value + pad(value) + "\n";
+    // 2行目以降は全角化＋文字数調整
+    const lines = str.split("\n");
+    lines.forEach((value) => {
+      let processed = toFullWidth(value); // 半角→全角
+      processed = processed + pad(processed); // 26 or 52文字調整
+      r += processed + "\n";
     });
+
+    // 最終行の改行とスペースを削除
+    r = r.replace(/[\s　]+$/g, "");
 
     document.getElementById("story").value = r;
   }
