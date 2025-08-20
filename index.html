@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- 追加 -->
   <title>IRIAM改行ツール</title>
   <style>
     body {
@@ -20,7 +21,7 @@
     }
 
     h1 {
-      font-size: 1.4em;
+      font-size: 1.6em;
       margin-bottom: 20px;
       text-align: center;
       color: #00bfff; /* 水色に変更 */
@@ -78,6 +79,32 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 10px;
+    }
+
+    /* 📱 スマホ対応 */
+    @media (max-width: 600px) {
+      body {
+        padding: 15px;
+      }
+      .container {
+        padding: 15px 20px;
+      }
+      h1 {
+        font-size: 1.3em;
+      }
+      textarea#story {
+        height: 200px;
+      }
+      .result-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+      }
+      .btn {
+        width: 100%;
+        text-align: center;
+      }
     }
   </style>
 </head>
