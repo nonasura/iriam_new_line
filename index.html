@@ -144,12 +144,22 @@
   function pad(text, targetLength = 26) {
     const currentLength = [...text].length; // Unicode対応
     const fullWidthSpace = "　";
-    // let targetLength = 26;
     if (currentLength > 26) {
       targetLength = 52;
     }
     const spacesNeeded = targetLength - currentLength;
     return spacesNeeded > 0 ? fullWidthSpace.repeat(spacesNeeded) : "";
+  }
+
+  // Cookie操作
+  function setCookie(name, value, days=365) {
+    const expires = new Date(Date.now() + days*24*60*60*1000).toUTCString();
+    document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+  }
+
+  function getCookie(name) {
+    const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+    return match ? decodeURIComponent(match[1]) : null;
   }
 
   function generate() {
@@ -161,9 +171,9 @@
 
     // 名前行（全角変換はしない）
     if (haveStar) {
-      r += "、" + pad(name, 23) + "\n"; // 名前行 星あり
+      r += "、" + pad(name, 23) + "\n"; // 星あり
     } else {
-      r += "、" + pad(name) + "\n"; // 名前行 星なし
+      r += "、" + pad(name, 26) + "\n"; // 星なし
     }
 
     // 2行目以降は全角化＋文字数調整
@@ -188,25 +198,35 @@
     story.setSelectionRange(0, 99999); // モバイル対応
 
     navigator.clipboard.writeText(story.value).then(() => {
-      // ボタンを「コピー済み」に変更
       copyBtn.textContent = "✔ コピー済み";
-      copyBtn.style.background = "#28a745"; // 緑色に変更
-
+      copyBtn.style.background = "#28a745";
       setTimeout(() => {
         copyBtn.textContent = "コピー";
-        copyBtn.style.background = "#007bff"; // 元の色に戻す
+        copyBtn.style.background = "#007bff";
       }, 1500);
     });
   }
 
-  // イベントリスナーを登録（入力が変わるたびに更新）
-  document.getElementById("nameInput").addEventListener("input", generate);
+  // ページ読み込み時にCookieから名前を取得してセット
+  window.addEventListener("DOMContentLoaded", () => {
+    const savedName = getCookie("listenerName");
+    if (savedName) {
+      document.getElementById("nameInput").value = savedName;
+    }
+    generate();
+  });
+
+  // イベントリスナー登録
+  const nameInput = document.getElementById("nameInput");
+  nameInput.addEventListener("input", () => {
+    setCookie("listenerName", nameInput.value); // 入力が変わったらCookie保存
+    generate();
+  });
+
   document.getElementById("strInput").addEventListener("input", generate);
   document.getElementById("haveStar").addEventListener("change", generate);
-
-  // 初期表示
-  generate();
 </script>
+
 
 </body>
 </html>
